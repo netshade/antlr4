@@ -223,10 +223,4 @@ public class RustTarget extends Target {
 	public boolean wantsBaseVisitor() {
 		return false;
 	}
-
-	@Override
-	protected void appendUnicodeEscapedCodePoint(int codePoint, StringBuilder sb) {
-		// C99 and Python share the same escaping style.
-		UnicodeEscapes.appendSwiftStyleEscapedCodePoint(codePoint, sb);
-	}
 }

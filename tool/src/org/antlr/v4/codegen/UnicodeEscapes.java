@@ -28,6 +28,7 @@ public class UnicodeEscapes {
 				String format = Character.isSupplementaryCodePoint(codePoint) ? "\\U%08X" : "\\u%04X";
 				sb.append(String.format(format, codePoint));
 				break;
+			case "Rust":
 			case "Swift":
 				sb.append(String.format("\\u{%04X}", codePoint));
 				break;
