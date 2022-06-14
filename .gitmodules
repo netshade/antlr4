@@ -1,0 +1,3 @@
+[submodule "runtime/Rust"]
+	path = runtime/Rust
+	url = https://github.com/netshade/antlr4rust.git
