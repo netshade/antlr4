@@ -26,7 +26,8 @@ import java.util.Set;
 
 public class RustTarget extends Target {
 
-	protected static final String[] rustKeywords = {
+
+	protected static final HashSet<String> reservedWords = new HashSet<>(Arrays.asList(
 			"_", "abstract", "alignof", "as", "become ",
 			"box", "break", "const", "continue", "crate",
 			"do", "else", "enum", "extern", "false",
@@ -37,8 +38,11 @@ public class RustTarget extends Target {
 			"return", "Self", "self", "sizeof", "static",
 			"struct", "super", "trait", "true", "type",
 			"typeof", "unsafe", "unsized", "use", "virtual",
-			"where", "while", "yield"
-	};
+			"where", "while", "yield",
+
+			// misc
+			"rule", "parserRule"
+	));
 
 	/**
 	 * Avoid grammar symbols in this set to prevent conflicts in gen'd code.
@@ -46,29 +50,18 @@ public class RustTarget extends Target {
 	protected final Set<String> badWords = new HashSet<String>();
 
 	public RustTarget(CodeGenerator gen) {
-		super(gen, "Rust");
+		super(gen);
 	}
 
-	public String getVersion() {
-		return "4.8";
-	}
-
-	public Set<String> getBadWords() {
-		if (badWords.isEmpty()) {
-			addBadWords();
-		}
-
-		return badWords;
-	}
-
-	protected void addBadWords() {
-		badWords.addAll(Arrays.asList(rustKeywords));
-		badWords.add("rule");
-		badWords.add("parserRule");
-	}
 
 	@Override
-	public String encodeIntAsCharEscape(int v) {
+	protected Set<String> getReservedWords() {
+		return reservedWords;
+	}
+
+	// TODO: This has diverged pretty significantly from upstream implementation
+	@Override
+	public String encodeInt16AsCharEscape(int v) {
 
 		if (v < Character.MIN_VALUE || v > Character.MAX_VALUE) {
 			throw new IllegalArgumentException(String.format("Cannot encode the specified value: %d", v));
@@ -154,7 +147,7 @@ public class RustTarget extends Target {
 
 	@Override
 	protected boolean visibleGrammarSymbolCausesIssueInGeneratedCode(GrammarAST idNode) {
-		return getBadWords().contains(idNode.getText());
+		return reservedWords.contains(idNode.getText());
 	}
 
 	@Override
@@ -208,11 +201,12 @@ public class RustTarget extends Target {
 
 	}
 
-	@Override
-	public String processActionText(String text) {
-		// in rust `'` is not escapable so we don't care about inside string
-		return text.replaceAll("\\\\'", "'");
-	}
+	// TODO: This API has been removed, verify
+	// @Override
+	// public String processActionText(String text) {
+	// 	// in rust `'` is not escapable so we don't care about inside string
+	// 	return text.replaceAll("\\\\'", "'");
+	// }
 
 	@Override
 	public boolean wantsBaseListener() {
